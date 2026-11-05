@@ -100,8 +100,11 @@ class ProgressTests(unittest.TestCase):
         self.assertIn("day_play30", first)
         self.assertEqual(self.pm.evaluate(), [])              # nada repetido
         snap = self.pm.snapshot()
-        self.assertEqual(snap["xp"], int(3700 / 3600 * 10) + 50 + 30)
-        self.assertEqual(snap["level"], 1)
+        # La XP = 10 por hora + recompensas realmente desbloqueadas. No se fija un número a mano porque, según la hora
+        # a la que se ejecute el test (p. ej. de madrugada), se desbloquea también «Noctámbulo».
+        self.assertEqual(snap["xp"], int(3700 / 3600 * 10) + self.db.xp_from_rewards())
+        self.assertGreaterEqual(self.db.xp_from_rewards(), 50 + 30)       # Primer paso + Calentamiento
+        self.assertEqual(snap["level"], 1 if snap["xp"] < 100 else 2)
 
     def test_usage_achievements_via_counters(self):
         self.pm.record("ai_messages")
