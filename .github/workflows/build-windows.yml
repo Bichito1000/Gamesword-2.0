@@ -1,0 +1,86 @@
+name: Construir .exe para Windows
+
+# Manual: pestaña Actions -> "Construir .exe para Windows" -> Run workflow
+# Automático: al subir una etiqueta de versión (por ejemplo v2.0.0) también crea una Release con los archivos.
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar dependencias
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt pyinstaller
+
+      - name: Instalar extras opcionales (si alguno falla, se omite)
+        shell: pwsh
+        continue-on-error: true
+        run: pip install SpeechRecognition PyAudio pypresence
+
+      - name: Pruebas (informativas)
+        shell: pwsh
+        continue-on-error: true
+        run: python -m unittest discover -s tests -t .
+
+      - name: Construir Gamesword.exe
+        shell: pwsh
+        run: python tools/build_exe.py
+
+      - name: Comprobar que el .exe arranca de verdad
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          $exe = Join-Path $PWD "dist\Gamesword\Gamesword.exe"
+          $p = Start-Process -FilePath $exe -ArgumentList "--selftest" -PassThru
+          if (-not $p.WaitForExit(90000)) { $p.Kill(); throw "El .exe no terminó en 90 segundos" }
+          $marker = Join-Path $env:LOCALAPPDATA "Gamesword\data\selftest.txt"
+          if (-not (Test-Path $marker)) { throw "El .exe se cerró sin llegar a abrir la ventana principal" }
+          $txt = Get-Content $marker -Raw
+          Write-Host "Resultado: $txt"
+          if (-not $txt.StartsWith("OK")) { throw $txt }
+
+      - name: Comprimir la carpeta del programa
+        shell: pwsh
+        run: Compress-Archive -Path dist\Gamesword -DestinationPath Gamesword-Windows.zip
+
+      - name: Crear instalador con Inno Setup
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          choco install innosetup --no-progress -y
+          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" installer.iss
+
+      - name: Guardar el programa (zip)
+        uses: actions/upload-artifact@v4
+        with:
+          name: Gamesword-Windows-exe
+          path: Gamesword-Windows.zip
+
+      - name: Guardar el instalador
+        uses: actions/upload-artifact@v4
+        with:
+          name: Gamesword-Instalador
+          path: Output/*.exe
+          if-no-files-found: ignore
+
+      - name: Publicar Release (solo con etiqueta v*)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            Gamesword-Windows.zip
+            Output/*.exe
