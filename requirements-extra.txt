@@ -1,0 +1,2 @@
+# Opcionales (el instalador los intenta; si fallan, Gamesword funciona igual)
+pypresence>=4.3.0

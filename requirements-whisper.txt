@@ -1,0 +1,2 @@
+# Reconocimiento de voz LOCAL y palabra de activacion "Oye Gamesword" (descarga un modelo la primera vez)
+faster-whisper>=1.0.0

@@ -1,0 +1,35 @@
+# Entorno y caché de Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Datos del usuario: NUNCA se suben (biblioteca, ajustes, claves, copias, logs)
+data/
+logs/
+*.db
+*.db-wal
+*.db-shm
+settings.json
+diagnostico_*.zip
+gamesword_backup_*.zip
+
+# Secretos y certificados
+tools/private.key
+*.pem
+*.key
+*.pfx
+.env
+
+# Compilación e instaladores generados
+build/
+dist/
+*.spec
+Gamesword-Setup-*.exe
+update.json
+
+# Editores y sistema
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

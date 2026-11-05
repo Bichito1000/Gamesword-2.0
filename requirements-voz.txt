@@ -1,0 +1,4 @@
+# Reconocimiento de voz (boton del microfono). Opcional.
+# PyAudio necesita una version de Python con rueda (wheel) disponible para Windows.
+SpeechRecognition>=3.10.0
+PyAudio>=0.2.14

@@ -1,0 +1,8 @@
+# Los .bat DEBEN tener finales de línea de Windows (CRLF) o pueden fallar
+*.bat text eol=crlf
+*.iss text eol=crlf
+*.py text eol=lf
+*.md text eol=lf
+*.txt text eol=lf
+*.json text eol=lf
+*.yml text eol=lf
