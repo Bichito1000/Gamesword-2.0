@@ -24,6 +24,7 @@ tools/private.key
 # Compilación e instaladores generados
 build/
 dist/
+Output/
 *.spec
 Gamesword-Setup-*.exe
 update.json

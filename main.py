@@ -90,6 +90,11 @@ def main() -> int:
     app.setWindowIcon(app_icon())
     init_async()
 
+    selftest = "--selftest" in sys.argv         # usado por la CI: arranca, escribe un marcador y se cierra
+    if selftest:
+        from utils.paths import data_dir
+        (data_dir() / "selftest.txt").unlink(missing_ok=True)
+
     try:
         ctx, notice = build_context()
         state["ctx"] = ctx
@@ -97,10 +102,20 @@ def main() -> int:
         window = MainWindow(ctx)
     except Exception as exc:  # noqa: BLE001
         logger.exception("No se pudo iniciar Gamesword")
+        if selftest:
+            from utils.paths import data_dir
+            (data_dir() / "selftest.txt").write_text(f"FALLO: {exc}", encoding="utf-8")
+            return 1
         QMessageBox.critical(None, "Gamesword", f"No se pudo iniciar la aplicación:\n\n{exc}\n\n"
                                                 "Consulta logs/gamesword.log para más detalles.")
         return 1
 
+    if selftest:
+        from utils.paths import data_dir
+        (data_dir() / "selftest.txt").write_text(f"OK {VERSION}", encoding="utf-8")
+        window.show()
+        QTimer.singleShot(1500, app.quit)
+        return app.exec()
     if notice:
         QMessageBox.warning(window, "Gamesword", notice)
     start_hidden = ("--minimized" in sys.argv or ctx.settings.get("app.start_minimized")) and window.tray is not None

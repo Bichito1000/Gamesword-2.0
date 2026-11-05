@@ -103,7 +103,13 @@ Por defecto **todo está desbloqueado** (`ENFORCE_LICENSES = False` en `core/lic
 3. Ajusta `FEATURES` (qué función exige qué nivel) y pon `ENFORCE_LICENSES = True`.
 Aviso honesto: una licencia verificada en el cliente frena el uso casual, no a quien edite el código.
 
-## .exe e instalador
+## Descargar el .exe (sin instalar Python)
+GitHub puede construir el `.exe` por ti en un Windows real: pestaña **Actions → «Construir .exe para Windows» → Run workflow**.
+A los ~6-10 minutos, al final de la ejecución, descarga **Gamesword-Windows-exe** (zip con `Gamesword.exe`) o
+**Gamesword-Instalador** (`Gamesword-Setup-….exe`). Si subes una etiqueta `v2.0.0`, también crea una *Release* con los archivos.
+Los programas sin firma digital pueden mostrar el aviso de SmartScreen («Más información → Ejecutar de todas formas»).
+
+## .exe e instalador (en tu PC)
 `CREAR_EXE.bat` (PyInstaller; define `GAMESWORD_PFX` y `GAMESWORD_PFX_PASS` para firmarlo) → abre `installer.iss` con Inno Setup 6 y compila.
 Instalado, los datos van a `%LOCALAPPDATA%\Gamesword`.
 
